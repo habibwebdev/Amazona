@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import '../styles/globals.css'
+import { StoreProvider } from '../utils/Store'
 
 function MyApp({ Component, pageProps }) {
   // For serverside rendering of material ui Elements in conjuction of creation of _document.js file
@@ -9,7 +10,11 @@ function MyApp({ Component, pageProps }) {
       jssStyles.parentElement.removeChild(jssStyles)
     }
   }, [])
-  return <Component {...pageProps} />
+  return (
+    <StoreProvider>
+      <Component {...pageProps} />
+    </StoreProvider>
+  )
 }
 
 export default MyApp
