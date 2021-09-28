@@ -6,8 +6,10 @@ import NextLink from 'next/link'
 import useStyles from '../utils/styles'
 import {
   AppBar,
+  Badge,
   Container,
-  createMuiTheme,
+  // createMuiTheme,
+  createTheme,
   CssBaseline,
   Link,
   Switch,
@@ -19,9 +21,10 @@ import { Store } from '../utils/Store'
 
 export default function Layout({ title, children, description }) {
   const { state, dispatch } = useContext(Store)
-  const { darkMode } = state
+  const { darkMode, cart } = state
   // create theme
-  const theme = createMuiTheme({
+  // const theme = createMuiTheme({
+  const theme = createTheme({
     typography: {
       h1: {
         fontSize: '1.6rem',
@@ -71,7 +74,20 @@ export default function Layout({ title, children, description }) {
                 checked={darkMode}
                 onChange={darkModeChangeHandler}
               ></Switch>
-              <NextLink href="/cart">Cart</NextLink>
+              <NextLink href="/cart">
+                <Link>
+                  {cart.cartItems.length > 0 ? (
+                    <Badge
+                      color="secondary"
+                      badgeContent={cart.cartItems.length}
+                    >
+                      Cart
+                    </Badge>
+                  ) : (
+                    'Cart'
+                  )}
+                </Link>
+              </NextLink>
               <NextLink href="/login">Login</NextLink>
             </div>
           </Toolbar>
