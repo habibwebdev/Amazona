@@ -74,7 +74,7 @@ export default function Layout({ title, children, description }) {
                 checked={darkMode}
                 onChange={darkModeChangeHandler}
               ></Switch>
-              <NextLink href="/cart">
+              <NextLink href="/cart" passHref>
                 <Link>
                   {cart.cartItems.length > 0 ? (
                     <Badge
@@ -88,7 +88,9 @@ export default function Layout({ title, children, description }) {
                   )}
                 </Link>
               </NextLink>
-              <NextLink href="/login">Login</NextLink>
+              <NextLink href="/login" passHref>
+                <Link>Login</Link>
+              </NextLink>
             </div>
           </Toolbar>
         </AppBar>
