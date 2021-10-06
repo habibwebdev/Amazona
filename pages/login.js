@@ -6,13 +6,27 @@ import {
   TextField,
   Typography,
 } from '@material-ui/core'
-import React, { useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import useStyles from './../utils/styles'
 import NextLink from 'next/link'
 import axios from 'axios'
+import { Store } from '../utils/Store'
+import { useRouter } from 'next/router'
+import Cookies from 'js-cookie'
 
 export default function Login() {
+  const router = useRouter()
+  const { redirect } = router.query
+  const { state, dispatch } = useContext(Store)
+  const { userInfo } = state
+
+  useEffect(() => {
+    if (userInfo) {
+      router.push('/')
+    }
+  }, [])
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
@@ -22,7 +36,11 @@ export default function Login() {
     e.preventDefault()
     try {
       const { data } = await axios.post('/api/users/login', { email, password })
-      alert('success login')
+      // console.log(data)
+      dispatch({ type: 'USER_LOGIN', payload: data })
+      Cookies.set('userInfo', JSON.stringify(data))
+      router.push(redirect || '/')
+      //   alert('success login')
     } catch (error) {
       alert(error.response.data ? error.response.data.message : error.message)
     }

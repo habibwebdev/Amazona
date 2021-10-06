@@ -9,7 +9,8 @@ const handler = nc()
 handler.post(async (req, res) => {
   await db.connect()
   const user = await User.findOne({ email: req.body.email })
-  console.log(user)
+  await db.disconnect()
+  // console.log(user)
 
   if (user && bcrypt.compareSync(req.body.password, user.password)) {
     const token = signToken(user)
@@ -23,7 +24,6 @@ handler.post(async (req, res) => {
   } else {
     res.status(401).send({ message: 'Invalid user or password' })
   }
-  await db.disconnect()
 })
 
 export default handler
