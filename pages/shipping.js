@@ -1,6 +1,6 @@
 import {
   Button,
-  Link,
+  // Link,
   List,
   ListItem,
   TextField,
@@ -9,7 +9,7 @@ import {
 import React, { useContext, useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import useStyles from './../utils/styles'
-import NextLink from 'next/link'
+// import NextLink from 'next/link'
 import { Store } from '../utils/Store'
 import { useRouter } from 'next/router'
 import Cookies from 'js-cookie'
