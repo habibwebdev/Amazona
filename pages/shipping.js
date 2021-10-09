@@ -1,15 +1,13 @@
 import {
   Button,
-  // Link,
   List,
   ListItem,
   TextField,
   Typography,
 } from '@material-ui/core'
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useEffect } from 'react'
 import Layout from '../components/Layout'
 import useStyles from './../utils/styles'
-// import NextLink from 'next/link'
 import { Store } from '../utils/Store'
 import { useRouter } from 'next/router'
 import Cookies from 'js-cookie'
@@ -34,12 +32,13 @@ export default function Shipping() {
   useEffect(() => {
     if (!userInfo) {
       router.push('/login?redirect=/shipping')
+    } else {
+      setValue('fullName', shippingAddress.fullName)
+      setValue('address', shippingAddress.address)
+      setValue('city', shippingAddress.city)
+      setValue('postalCode', shippingAddress.postalCode)
+      setValue('country', shippingAddress.country)
     }
-    setValue('fullName', shippingAddress.fullName)
-    setValue('address', shippingAddress.address)
-    setValue('city', shippingAddress.city)
-    setValue('postalCode', shippingAddress.postalCode)
-    setValue('country', shippingAddress.country)
   }, [])
 
   const classes = useStyles()

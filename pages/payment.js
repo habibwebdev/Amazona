@@ -24,14 +24,19 @@ export default function Payment() {
   const { state, dispatch } = useContext(Store)
   const router = useRouter()
   const {
+    userInfo,
     cart: { shippingAddress },
   } = state
 
   useEffect(() => {
-    if (!shippingAddress) {
-      router.push('/shipping')
+    if (!userInfo) {
+      router.push('/login?redirect=/shipping')
     } else {
-      setPaymentMethod(Cookies.get('paymentMethod') || '')
+      if (!shippingAddress) {
+        router.push('/shipping')
+      } else {
+        setPaymentMethod(Cookies.get('paymentMethod') || '')
+      }
     }
   }, [])
 
