@@ -26,7 +26,6 @@ export default function Layout({ title, children, description }) {
   const router = useRouter()
   const { state, dispatch } = useContext(Store)
   const { darkMode, cart, userInfo } = state
-  // console.log(userInfo)
 
   const theme = createTheme({
     typography: {
@@ -141,6 +140,15 @@ export default function Layout({ title, children, description }) {
                     >
                       Order History
                     </MenuItem>
+                    {userInfo.isAdmin && (
+                      <MenuItem
+                        onClick={(e) =>
+                          loginMenuCloseHandler(e, '/admin/dashboard')
+                        }
+                      >
+                        Admin Dashboard
+                      </MenuItem>
+                    )}
                     <MenuItem onClick={logoutClickHandler}>Logout</MenuItem>
                   </Menu>
                 </>

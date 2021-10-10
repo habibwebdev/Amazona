@@ -78,7 +78,7 @@ function OrderHistory() {
                   <ListItemText primary="User Profile"></ListItemText>
                 </ListItem>
               </NextLink>
-              <NextLink href="/profile" passHref>
+              <NextLink href="/order-history" passHref>
                 <ListItem selected button component="a">
                   <ListItemText primary="Order History"></ListItemText>
                 </ListItem>

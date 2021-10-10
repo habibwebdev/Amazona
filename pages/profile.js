@@ -83,7 +83,7 @@ function Profile() {
                   <ListItemText primary="User Profile"></ListItemText>
                 </ListItem>
               </NextLink>
-              <NextLink href="/profile" passHref>
+              <NextLink href="/order-history" passHref>
                 <ListItem button component="a">
                   <ListItemText primary="Order History"></ListItemText>
                 </ListItem>
