@@ -2,7 +2,7 @@ import axios from 'axios'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import NextLink from 'next/link'
-import React, { useEffect, useContext, useReducer } from 'react'
+import React, { useState, useEffect, useContext, useReducer } from 'react'
 import {
   Grid,
   List,
@@ -28,27 +28,53 @@ function reducer(state, action) {
     case 'FETCH_SUCCESS':
       return { ...state, loading: false, error: '' }
     case 'FETCH_FAIL':
-      return { ...state, loading: false, error: payload.action }
+      return { ...state, loading: false, error: action.payload }
+    case 'UPDATE_REQUEST':
+      return { ...state, loadingUpdate: true, errorUpdate: '' }
+    case 'UPDATE_SUCCESS':
+      return { ...state, loadingUpdate: false, errorUpdate: '' }
+    case 'UPDATE_FAIL':
+      return { ...state, loadingUpdate: false, errorUpdate: action.payload }
+    case 'UPLOAD_REQUEST':
+      return { ...state, loadingUpload: true, errorUpload: '' }
+    case 'UPLOAD_SUCCESS':
+      return {
+        ...state,
+        loadingUpload: false,
+        errorUpload: '',
+      }
+    case 'UPLOAD_FAIL':
+      return { ...state, loadingUpload: false, errorUpload: action.payload }
+
     default:
-      state
+      return state
   }
 }
 
 function ProductEdit({ params }) {
   const productId = params.id
+  const [product, setProduct] = useState({
+    name: '',
+    slug: '',
+    price: 0,
+    category: '',
+    image: '',
+    brand: '',
+    countInStock: 0,
+    description: '',
+  })
   const { state } = useContext(Store)
-  const [{ loading, error }, dispatch] = useReducer(reducer, {
-    loading: false,
+  const [{ loading, error, loadingUpdate }, dispatch] = useReducer(reducer, {
+    loading: true,
     error: '',
   })
-
   const {
     handleSubmit,
     control,
     formState: { errors },
     setValue,
   } = useForm()
-  const { enqueueSnackbar, closeSnackber } = useSnackbar()
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const router = useRouter()
   const classes = useStyles()
   const { userInfo } = state
@@ -61,42 +87,79 @@ function ProductEdit({ params }) {
         try {
           dispatch({ type: 'FETCH_REQUEST' })
           const { data } = await axios.get(`/api/admin/products/${productId}`, {
-            headers: {
-              authorization: `Bearer ${userInfo.token}`,
-            },
+            headers: { authorization: `Bearer ${userInfo.token}` },
           })
           dispatch({ type: 'FETCH_SUCCESS' })
-          setValue('name', data.name)
-          setValue('slug', data.slug)
-          setValue('price', data.price)
-          setValue('image', data.image)
-          setValue('category', data.category)
-          setValue('brand', data.brand)
-          setValue('countInStock', data.countInStock)
-          setValue('description', data.description)
-        } catch (error) {
-          dispatch({ type: 'FETCH_FAIL', payload: getError(error) })
+          // setValue('name', data.name)
+          // setValue('slug', data.slug)
+          // setValue('price', data.price)
+          // setValue('image', data.image)
+          // setValue('featuredImage', data.featuredImage)
+          // setIsFeatured(data.isFeatured)
+          // setValue('category', data.category)
+          // setValue('brand', data.brand)
+          // setValue('countInStock', data.countInStock)
+          // setValue('description', data.description)
+          setProduct({ ...data })
+        } catch (err) {
+          dispatch({ type: 'FETCH_FAIL', payload: getError(err) })
         }
-        fetchData()
       }
+      fetchData()
     }
   }, [])
 
-  const submitHandler = async ({ name }) => {
-    closeSnackber()
+  useEffect(() => {
+    if (product) {
+      setValue('name', product.name)
+      setValue('slug', product.slug)
+      setValue('price', product.price)
+      setValue('image', product.image)
+      setValue('category', product.category)
+      setValue('brand', product.brand)
+      setValue('countInStock', product.countInStock)
+      setValue('description', product.description)
+    }
+  }, [product])
 
+  const submitHandler = async ({
+    name,
+    slug,
+    price,
+    category,
+    image,
+    featuredImage,
+    brand,
+    countInStock,
+    description,
+  }) => {
+    closeSnackbar()
     try {
-      const { data } = await axios.put(
+      dispatch({ type: 'UPDATE_REQUEST' })
+      await axios.put(
         `/api/admin/products/${productId}`,
-        { name },
-        { headers: `Bearer ${userInfo.token}` }
+        {
+          name,
+          slug,
+          price,
+          category,
+          image,
+          brand,
+          countInStock,
+          description,
+        },
+        { headers: { authorization: `Bearer ${userInfo.token}` } }
       )
-
+      dispatch({ type: 'UPDATE_SUCCESS' })
       enqueueSnackbar('Product updated successfully', { variant: 'success' })
-    } catch (error) {
-      enqueueSnackbar(getError(error), { variant: 'error' })
+      router.push('/admin/products')
+    } catch (err) {
+      dispatch({ type: 'UPDATE_FAIL', payload: getError(err) })
+      enqueueSnackbar(getError(err), { variant: 'error' })
     }
   }
+
+  const [isFeatured, setIsFeatured] = useState(false)
 
   return (
     <Layout title={`Edit Product ${productId}`}>
@@ -119,6 +182,11 @@ function ProductEdit({ params }) {
                   <ListItemText primary="Products"></ListItemText>
                 </ListItem>
               </NextLink>
+              <NextLink href="/admin/users" passHref>
+                <ListItem button component="a">
+                  <ListItemText primary="Users"></ListItemText>
+                </ListItem>
+              </NextLink>
             </List>
           </Card>
         </Grid>
@@ -136,7 +204,6 @@ function ProductEdit({ params }) {
                   <Typography className={classes.error}>{error}</Typography>
                 )}
               </ListItem>
-
               <ListItem>
                 <form
                   onSubmit={handleSubmit(submitHandler)}
@@ -147,7 +214,8 @@ function ProductEdit({ params }) {
                       <Controller
                         name="name"
                         control={control}
-                        defaultValue=""
+                        // defaultValue=""
+                        defaultValue={product.name}
                         rules={{
                           required: true,
                         }}
@@ -168,7 +236,8 @@ function ProductEdit({ params }) {
                       <Controller
                         name="slug"
                         control={control}
-                        defaultValue=""
+                        // defaultValue=""
+                        defaultValue={product.slug}
                         rules={{
                           required: true,
                         }}
@@ -189,7 +258,8 @@ function ProductEdit({ params }) {
                       <Controller
                         name="price"
                         control={control}
-                        defaultValue=""
+                        // defaultValue=""
+                        defaultValue={product.price}
                         rules={{
                           required: true,
                         }}
@@ -210,7 +280,8 @@ function ProductEdit({ params }) {
                       <Controller
                         name="image"
                         control={control}
-                        defaultValue=""
+                        // defaultValue=""
+                        defaultValue={product.image}
                         rules={{
                           required: true,
                         }}
@@ -227,11 +298,13 @@ function ProductEdit({ params }) {
                         )}
                       ></Controller>
                     </ListItem>
+
                     <ListItem>
                       <Controller
                         name="category"
                         control={control}
-                        defaultValue=""
+                        // defaultValue=""
+                        defaultValue={product.category}
                         rules={{
                           required: true,
                         }}
@@ -254,7 +327,8 @@ function ProductEdit({ params }) {
                       <Controller
                         name="brand"
                         control={control}
-                        defaultValue=""
+                        // defaultValue=""
+                        defaultValue={product.brand}
                         rules={{
                           required: true,
                         }}
@@ -275,7 +349,8 @@ function ProductEdit({ params }) {
                       <Controller
                         name="countInStock"
                         control={control}
-                        defaultValue=""
+                        // defaultValue=""
+                        defaultValue={product.countInStock}
                         rules={{
                           required: true,
                         }}
@@ -300,7 +375,8 @@ function ProductEdit({ params }) {
                       <Controller
                         name="description"
                         control={control}
-                        defaultValue=""
+                        // defaultValue=""
+                        defaultValue={product.description}
                         rules={{
                           required: true,
                         }}
@@ -332,6 +408,7 @@ function ProductEdit({ params }) {
                       >
                         Update
                       </Button>
+                      {loadingUpdate && <CircularProgress />}
                     </ListItem>
                   </List>
                 </form>
