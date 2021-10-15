@@ -64,10 +64,11 @@ function ProductEdit({ params }) {
     description: '',
   })
   const { state } = useContext(Store)
-  const [{ loading, error, loadingUpdate }, dispatch] = useReducer(reducer, {
-    loading: true,
-    error: '',
-  })
+  const [{ loading, error, loadingUpdate, loadingUpload }, dispatch] =
+    useReducer(reducer, {
+      loading: true,
+      error: '',
+    })
   const {
     handleSubmit,
     control,
@@ -121,6 +122,28 @@ function ProductEdit({ params }) {
       setValue('description', product.description)
     }
   }, [product])
+
+  const uploadHandler = async (e) => {
+    const file = e.target.files[0]
+    const bodyFormData = new FormData()
+    bodyFormData.append('file', file)
+
+    try {
+      dispatch({ type: 'UPLOAD_REQUEST' })
+      const { data } = await axios.post('/api/admin/upload', bodyFormData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          authorization: `Bearer ${userInfo.token}`,
+        },
+      })
+      dispatch({ type: 'UPLOAD_SUCCESS' })
+      setValue('image', data.secure_url)
+      enqueueSnackbar('File uploaded successfully', { variant: 'success' })
+    } catch (err) {
+      dispatch({ type: 'UPLOAD_FAIL', payload: getError(err) })
+      enqueueSnackbar(getError(err), { variant: 'error' })
+    }
+  }
 
   const submitHandler = async ({
     name,
@@ -298,7 +321,12 @@ function ProductEdit({ params }) {
                         )}
                       ></Controller>
                     </ListItem>
-
+                    <ListItem>
+                      <Button variant="contained" component="label">
+                        Upload File
+                        <input type="file" onChange={uploadHandler} hidden />
+                      </Button>
+                    </ListItem>
                     <ListItem>
                       <Controller
                         name="category"
