@@ -34,7 +34,7 @@ handler.use(isAuth, isAdmin, upload.single('file')).post(async (req, res) => {
     })
   }
   const result = await streamUpload(req)
-  console.log(result)
+  // console.log(result)
   res.send(result)
 })
 

@@ -33,6 +33,20 @@ function reducer(state, action) {
       return { ...state, loading: false, products: action.payload, error: '' }
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload }
+    case 'CREATE_REQUEST':
+      return { ...state, loadingCreate: true }
+    case 'CREATE_SUCCESS':
+      return { ...state, loadingCreate: false }
+    case 'CREATE_FAIL':
+      return { ...state, loading: false }
+    case 'DELETE_REQUEST':
+      return { ...state, loadingDelete: true }
+    case 'DELETE_SUCCESS':
+      return { ...state, loadingDelete: false, successDelete: true }
+    case 'DELETE_FAIL':
+      return { ...state, loadingDelete: false }
+    case 'DELETE_RESET':
+      return { ...state, loadingDelete: false, successDelete: false }
     default:
       state
   }
@@ -77,35 +91,32 @@ function AdminProducts() {
     }
   }, [successDelete])
 
-
-const { enqueueSnackbar } = useSnackbar()
-const createHandler = async () => {
-  if (!window.confirm('Are you sure?')) {
-    return
+  const { enqueueSnackbar } = useSnackbar()
+  const createHandler = async () => {
+    if (!window.confirm('Are you sure?')) {
+      return
+    }
+    try {
+      dispatch({ type: 'CREATE_REQUEST' })
+      const { data } = await axios.post(
+        `/api/admin/products`,
+        {},
+        {
+          headers: { authorization: `Bearer ${userInfo.token}` },
+        }
+      )
+      dispatch({ type: 'CREATE_SUCCESS' })
+      enqueueSnackbar('Product created successfully', { variant: 'success' })
+      router.push(`/admin/product/${data.product._id}`)
+    } catch (err) {
+      dispatch({ type: 'CREATE_FAIL' })
+      enqueueSnackbar(getError(err), { variant: 'error' })
+    }
   }
-
-  try {
-    dispatch({ type: 'CREATE_REQUEST' })
-    const { data } = await axios.post(
-      `/api/admin/products`,
-      {},
-      {
-        headers: { authorization: `Bearer ${userInfo.token}` },
-      }
-    )
-    dispatch({ type: 'CREATE_SUCCESS' })
-    enqueueSnackbar('Product created successfully', { variant: 'success' })
-    router.push(`/admin/product/${data.product._id}`)
-  } catch (error) {
-    dispatch({ type: 'CREATE_FAIL' })
-    enqueueSnackbar(getError(error), { variant: 'error' })
-  }
-}
   const deleteHandler = async (productId) => {
     if (!window.confirm('Are you sure?')) {
       return
     }
-
     try {
       dispatch({ type: 'DELETE_REQUEST' })
       await axios.delete(`/api/admin/products/${productId}`, {
@@ -113,9 +124,9 @@ const createHandler = async () => {
       })
       dispatch({ type: 'DELETE_SUCCESS' })
       enqueueSnackbar('Product deleted successfully', { variant: 'success' })
-    } catch (error) {
+    } catch (err) {
       dispatch({ type: 'DELETE_FAIL' })
-      enqueueSnackbar(getError(error), { variant: 'error' })
+      enqueueSnackbar(getError(err), { variant: 'error' })
     }
   }
 
