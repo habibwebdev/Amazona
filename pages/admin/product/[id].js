@@ -64,6 +64,8 @@ function ProductEdit({ params }) {
     brand: '',
     countInStock: 0,
     description: '',
+    featuredImage: '',
+    isFeatured: false,
   })
   const { state } = useContext(Store)
   const [{ loading, error, loadingUpdate, loadingUpload }, dispatch] =
@@ -93,16 +95,7 @@ function ProductEdit({ params }) {
             headers: { authorization: `Bearer ${userInfo.token}` },
           })
           dispatch({ type: 'FETCH_SUCCESS' })
-          // setValue('name', data.name)
-          // setValue('slug', data.slug)
-          // setValue('price', data.price)
-          // setValue('image', data.image)
-          // setValue('featuredImage', data.featuredImage)
-          // setIsFeatured(data.isFeatured)
-          // setValue('category', data.category)
-          // setValue('brand', data.brand)
-          // setValue('countInStock', data.countInStock)
-          // setValue('description', data.description)
+
           setProduct({ ...data })
         } catch (err) {
           dispatch({ type: 'FETCH_FAIL', payload: getError(err) })
@@ -114,6 +107,7 @@ function ProductEdit({ params }) {
 
   useEffect(() => {
     if (product) {
+      console.log(product)
       setValue('name', product.name)
       setValue('slug', product.slug)
       setValue('price', product.price)
@@ -122,8 +116,15 @@ function ProductEdit({ params }) {
       setValue('brand', product.brand)
       setValue('countInStock', product.countInStock)
       setValue('description', product.description)
-      setValue('featuredImage', data.featuredImage)
-      setIsFeatured(data.isFeatured)
+      setValue('isFeatured', product.isFeatured)
+
+      if (product.featuredImage) {
+        console.log(product.featuredImage)
+        setValue(
+          'featuredImage',
+          product.featuredImage ? product.featuredImage : ''
+        )
+      }
     }
   }, [product])
 
@@ -156,10 +157,24 @@ function ProductEdit({ params }) {
     category,
     image,
     featuredImage,
+    isFeatured,
     brand,
     countInStock,
     description,
   }) => {
+    console.log('clicked')
+    console.log({
+      name,
+      slug,
+      price,
+      category,
+      image,
+      featuredImage,
+      isFeatured,
+      brand,
+      countInStock,
+      description,
+    })
     closeSnackbar()
     try {
       dispatch({ type: 'UPDATE_REQUEST' })
@@ -171,8 +186,8 @@ function ProductEdit({ params }) {
           price,
           category,
           image,
-          isFeatured,
           featuredImage,
+          isFeatured,
           brand,
           countInStock,
           description,
@@ -187,8 +202,6 @@ function ProductEdit({ params }) {
       enqueueSnackbar(getError(err), { variant: 'error' })
     }
   }
-
-  const [isFeatured, setIsFeatured] = useState(false)
 
   return (
     <Layout title={`Edit Product ${productId}`}>
@@ -243,7 +256,6 @@ function ProductEdit({ params }) {
                       <Controller
                         name="name"
                         control={control}
-                        // defaultValue=""
                         defaultValue={product.name}
                         rules={{
                           required: true,
@@ -265,7 +277,6 @@ function ProductEdit({ params }) {
                       <Controller
                         name="slug"
                         control={control}
-                        // defaultValue=""
                         defaultValue={product.slug}
                         rules={{
                           required: true,
@@ -287,7 +298,6 @@ function ProductEdit({ params }) {
                       <Controller
                         name="price"
                         control={control}
-                        // defaultValue=""
                         defaultValue={product.price}
                         rules={{
                           required: true,
@@ -309,7 +319,6 @@ function ProductEdit({ params }) {
                       <Controller
                         name="image"
                         control={control}
-                        // defaultValue=""
                         defaultValue={product.image}
                         rules={{
                           required: true,
@@ -338,8 +347,13 @@ function ProductEdit({ params }) {
                         label="Is Featured"
                         control={
                           <Checkbox
-                            onClick={(e) => setIsFeatured(e.target.checked)}
-                            checked={isFeatured}
+                            onClick={(e) =>
+                              setProduct({
+                                ...product,
+                                isFeatured: e.target.checked,
+                              })
+                            }
+                            checked={product.isFeatured}
                             name="isFeatured"
                           />
                         }
@@ -349,7 +363,7 @@ function ProductEdit({ params }) {
                       <Controller
                         name="featuredImage"
                         control={control}
-                        defaultValue=""
+                        defaultValue={product.featuredImage}
                         rules={{
                           required: true,
                         }}

@@ -18,7 +18,8 @@ handler.post(async (req, res) => {
   const newProduct = new Product({
     name: 'sample name',
     slug: 'sample-slug-' + Math.random(),
-    image: '/images/shirt1.jpg',
+    // image: '/images/shirt1.jpg',
+    image: '/images/placeholder.png',
     price: 0,
     category: 'sample category',
     brand: 'sample brand',
@@ -26,6 +27,8 @@ handler.post(async (req, res) => {
     description: 'sample description',
     rating: 0,
     numReviews: 0,
+    featuredImage: '/images/placeholder.png',
+    isFeatured: false,
   })
 
   const product = await newProduct.save()
