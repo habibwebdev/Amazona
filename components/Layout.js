@@ -72,7 +72,7 @@ export default function Layout({ title, children, description }) {
   })
   const classes = useStyles()
 
-  const [navbar, setNavbar] = useState('')
+  const [myNavbar, setMyNavbar] = useState('')
   const [sidbarVisible, setSidebarVisible] = useState(false)
   const sidebarOpenHandler = () => {
     setSidebarVisible(true)
@@ -104,7 +104,7 @@ export default function Layout({ title, children, description }) {
 
   useEffect(() => {
     fetchCategories()
-    setNavbar(classes.navbar)
+    setMyNavbar(classes.myNavbar)
     // console.log(classes.navbar)
   }, [])
 
@@ -148,7 +148,7 @@ export default function Layout({ title, children, description }) {
             position="static"
             // className={classes.navbar}
             // style={{ background: '#2E3B55' }}
-            className={navbar}
+            className={myNavbar}
           >
             <Toolbar className={classes.toolbar}>
               <Box display="flex" alignItems="center">
