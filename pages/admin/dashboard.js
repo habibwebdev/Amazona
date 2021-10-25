@@ -187,7 +187,7 @@ function AdminDashboard() {
                     datasets: [
                       {
                         label: 'Sales',
-                        backgroundcolor: 'rgba(162, 222, 208, 1)',
+                        backgroundColor: 'rgba(162, 222, 208, 1)',
                         data: summary.salesData.map((x) => x.totalSales),
                       },
                     ],
